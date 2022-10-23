@@ -1,0 +1,3 @@
+mutation deleteWorkspace($uuid: UUID!) {
+  deleteWorkspace(uuid: $uuid)
+}

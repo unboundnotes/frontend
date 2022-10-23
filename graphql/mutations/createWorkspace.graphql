@@ -1,0 +1,8 @@
+mutation createWorkspace($name: String!, $image: Upload) {
+  createWorkspace(workspace: { name: $name, image: $image }) {
+    errors {
+      field
+      message
+    }
+  }
+}

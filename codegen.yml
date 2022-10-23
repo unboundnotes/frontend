@@ -1,0 +1,21 @@
+overwrite: true
+schema: http://127.0.0.1:8000
+documents: "graphql/**/*.graphql"
+
+generates:
+  lib/graphql/generated.ts:
+    config:
+      withHooks: true
+      scalars:
+        UUID: string
+    plugins:
+      - add:
+          content: '// THIS IS A GENERATED FILE, use `yarn codegen` to regenerate'
+      - add:
+          content: '/* tslint:disable */'
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+  graphql/schema.json:
+    plugins:
+      - "introspection"
