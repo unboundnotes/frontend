@@ -7,7 +7,7 @@ type Props = {
   workspace: WorkspaceData;
 };
 
-const Workspace: React.FC<Props & BoxProps> = ({ workspace, ...props }) => {
+const WorkspaceTile: React.FC<Props & BoxProps> = ({ workspace, ...props }) => {
   return (
     <Flex
       w="250px"
@@ -35,9 +35,9 @@ const Workspace: React.FC<Props & BoxProps> = ({ workspace, ...props }) => {
       <Text fontSize="2xl" mt={16} color="gray.500" fontWeight="bold">
         {workspace.name}
       </Text>
-      <WorkspaceTileMenu uuid={workspace.uuid} refetch={() => {}} />
+      <WorkspaceTileMenu workspace={workspace} />
     </Flex>
   );
 };
 
-export default Workspace;
+export default WorkspaceTile;
