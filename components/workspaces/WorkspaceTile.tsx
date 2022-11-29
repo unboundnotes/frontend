@@ -1,4 +1,5 @@
 import { BoxProps, Flex, Image, Text } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { GetAllWorkspacesQuery } from "~/graphql/generated";
 import WorkspaceTileMenu from "./WorkspaceTileMenu";
 
@@ -8,6 +9,8 @@ type Props = {
 };
 
 const WorkspaceTile: React.FC<Props & BoxProps> = ({ workspace, ...props }) => {
+  const router = useRouter();
+
   return (
     <Flex
       w="250px"
@@ -18,7 +21,7 @@ const WorkspaceTile: React.FC<Props & BoxProps> = ({ workspace, ...props }) => {
       align="center"
       justify="center"
       onClick={() => {
-        alert(workspace.name);
+        router.push(`/workspace/${workspace.uuid}`);
       }}
       cursor="pointer"
       flexDir="column"
@@ -32,7 +35,13 @@ const WorkspaceTile: React.FC<Props & BoxProps> = ({ workspace, ...props }) => {
         w="100px"
         h="100px"
       />
-      <Text fontSize="2xl" mt={16} color="gray.500" fontWeight="bold">
+      <Text
+        fontSize="2xl"
+        mt={16}
+        color="gray.500"
+        fontWeight="bold"
+        textAlign="center"
+      >
         {workspace.name}
       </Text>
       <WorkspaceTileMenu workspace={workspace} />

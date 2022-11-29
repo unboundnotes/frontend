@@ -19,6 +19,12 @@ export type Scalars = {
   Upload: any;
 };
 
+export type CreatePageInput = {
+  image?: InputMaybe<Scalars['Upload']>;
+  name: Scalars['String'];
+  workspaceUuid: Scalars['String'];
+};
+
 export type CreateUserInput = {
   email: Scalars['String'];
   password: Scalars['String'];
@@ -43,10 +49,16 @@ export type LoginUserInput = {
 
 export type MutationsRoot = {
   __typename?: 'MutationsRoot';
+  createPage: WithErrorPage;
   createUser: User;
-  createWorkspace: WithError;
+  createWorkspace: WithErrorWorkspace;
   deleteWorkspace: Scalars['Boolean'];
   loginUser: Scalars['String'];
+};
+
+
+export type MutationsRootCreatePageArgs = {
+  page: CreatePageInput;
 };
 
 
@@ -67,6 +79,18 @@ export type MutationsRootDeleteWorkspaceArgs = {
 
 export type MutationsRootLoginUserArgs = {
   login: LoginUserInput;
+};
+
+export type Page = {
+  __typename?: 'Page';
+  /** The page's image or icon. */
+  image?: Maybe<Scalars['String']>;
+  /** The page's title. */
+  title: Scalars['String'];
+  /** The page's unique identifier. */
+  uuid: Scalars['UUID'];
+  /** The workspace to which this page belongs. */
+  workspaceUuid: Scalars['UUID'];
 };
 
 export type QueryRoot = {
@@ -97,8 +121,14 @@ export type User = {
   uuid: Scalars['UUID'];
 };
 
-export type WithError = {
-  __typename?: 'WithError';
+export type WithErrorPage = {
+  __typename?: 'WithErrorPage';
+  errors: Array<InputError>;
+  value?: Maybe<Page>;
+};
+
+export type WithErrorWorkspace = {
+  __typename?: 'WithErrorWorkspace';
   errors: Array<InputError>;
   value?: Maybe<Workspace>;
 };
@@ -109,6 +139,7 @@ export type Workspace = {
   image: Scalars['String'];
   /** The workspace's name. */
   name: Scalars['String'];
+  pages: Array<Page>;
   /** The workspace's unique identifier. */
   uuid: Scalars['UUID'];
 };
@@ -119,7 +150,7 @@ export type CreateWorkspaceMutationVariables = Exact<{
 }>;
 
 
-export type CreateWorkspaceMutation = { __typename?: 'MutationsRoot', createWorkspace: { __typename?: 'WithError', errors: Array<{ __typename?: 'InputError', field: string, message: string }> } };
+export type CreateWorkspaceMutation = { __typename?: 'MutationsRoot', createWorkspace: { __typename?: 'WithErrorWorkspace', errors: Array<{ __typename?: 'InputError', field: string, message: string }> } };
 
 export type DeleteWorkspaceMutationVariables = Exact<{
   uuid: Scalars['UUID'];
@@ -128,6 +159,11 @@ export type DeleteWorkspaceMutationVariables = Exact<{
 
 export type DeleteWorkspaceMutation = { __typename?: 'MutationsRoot', deleteWorkspace: boolean };
 
+export type GetAllWorkspacesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllWorkspacesQuery = { __typename?: 'QueryRoot', getAllWorkspaces: Array<{ __typename?: 'Workspace', uuid: string, name: string, image: string }> };
+
 export type GetUserQueryVariables = Exact<{
   uuid: Scalars['UUID'];
 }>;
@@ -135,10 +171,12 @@ export type GetUserQueryVariables = Exact<{
 
 export type GetUserQuery = { __typename?: 'QueryRoot', getUser?: { __typename?: 'User', uuid: string, email: string, username: string } | null };
 
-export type GetAllWorkspacesQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetWorkspaceQueryVariables = Exact<{
+  uuid: Scalars['UUID'];
+}>;
 
 
-export type GetAllWorkspacesQuery = { __typename?: 'QueryRoot', getAllWorkspaces: Array<{ __typename?: 'Workspace', uuid: string, name: string, image: string }> };
+export type GetWorkspaceQuery = { __typename?: 'QueryRoot', getWorkspace?: { __typename?: 'Workspace', uuid: string, name: string, image: string, pages: Array<{ __typename?: 'Page', uuid: string, title: string, image?: string | null }> } | null };
 
 
 export const CreateWorkspaceDocument = gql`
@@ -209,6 +247,42 @@ export function useDeleteWorkspaceMutation(baseOptions?: Apollo.MutationHookOpti
 export type DeleteWorkspaceMutationHookResult = ReturnType<typeof useDeleteWorkspaceMutation>;
 export type DeleteWorkspaceMutationResult = Apollo.MutationResult<DeleteWorkspaceMutation>;
 export type DeleteWorkspaceMutationOptions = Apollo.BaseMutationOptions<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>;
+export const GetAllWorkspacesDocument = gql`
+    query getAllWorkspaces {
+  getAllWorkspaces {
+    uuid
+    name
+    image
+  }
+}
+    `;
+
+/**
+ * __useGetAllWorkspacesQuery__
+ *
+ * To run a query within a React component, call `useGetAllWorkspacesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllWorkspacesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllWorkspacesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllWorkspacesQuery(baseOptions?: Apollo.QueryHookOptions<GetAllWorkspacesQuery, GetAllWorkspacesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAllWorkspacesQuery, GetAllWorkspacesQueryVariables>(GetAllWorkspacesDocument, options);
+      }
+export function useGetAllWorkspacesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllWorkspacesQuery, GetAllWorkspacesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAllWorkspacesQuery, GetAllWorkspacesQueryVariables>(GetAllWorkspacesDocument, options);
+        }
+export type GetAllWorkspacesQueryHookResult = ReturnType<typeof useGetAllWorkspacesQuery>;
+export type GetAllWorkspacesLazyQueryHookResult = ReturnType<typeof useGetAllWorkspacesLazyQuery>;
+export type GetAllWorkspacesQueryResult = Apollo.QueryResult<GetAllWorkspacesQuery, GetAllWorkspacesQueryVariables>;
 export const GetUserDocument = gql`
     query getUser($uuid: UUID!) {
   getUser(uuid: $uuid) {
@@ -246,39 +320,45 @@ export function useGetUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ge
 export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
 export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
 export type GetUserQueryResult = Apollo.QueryResult<GetUserQuery, GetUserQueryVariables>;
-export const GetAllWorkspacesDocument = gql`
-    query getAllWorkspaces {
-  getAllWorkspaces {
+export const GetWorkspaceDocument = gql`
+    query getWorkspace($uuid: UUID!) {
+  getWorkspace(uuid: $uuid) {
     uuid
     name
     image
+    pages {
+      uuid
+      title
+      image
+    }
   }
 }
     `;
 
 /**
- * __useGetAllWorkspacesQuery__
+ * __useGetWorkspaceQuery__
  *
- * To run a query within a React component, call `useGetAllWorkspacesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAllWorkspacesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetWorkspaceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWorkspaceQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetAllWorkspacesQuery({
+ * const { data, loading, error } = useGetWorkspaceQuery({
  *   variables: {
+ *      uuid: // value for 'uuid'
  *   },
  * });
  */
-export function useGetAllWorkspacesQuery(baseOptions?: Apollo.QueryHookOptions<GetAllWorkspacesQuery, GetAllWorkspacesQueryVariables>) {
+export function useGetWorkspaceQuery(baseOptions: Apollo.QueryHookOptions<GetWorkspaceQuery, GetWorkspaceQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAllWorkspacesQuery, GetAllWorkspacesQueryVariables>(GetAllWorkspacesDocument, options);
+        return Apollo.useQuery<GetWorkspaceQuery, GetWorkspaceQueryVariables>(GetWorkspaceDocument, options);
       }
-export function useGetAllWorkspacesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllWorkspacesQuery, GetAllWorkspacesQueryVariables>) {
+export function useGetWorkspaceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWorkspaceQuery, GetWorkspaceQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAllWorkspacesQuery, GetAllWorkspacesQueryVariables>(GetAllWorkspacesDocument, options);
+          return Apollo.useLazyQuery<GetWorkspaceQuery, GetWorkspaceQueryVariables>(GetWorkspaceDocument, options);
         }
-export type GetAllWorkspacesQueryHookResult = ReturnType<typeof useGetAllWorkspacesQuery>;
-export type GetAllWorkspacesLazyQueryHookResult = ReturnType<typeof useGetAllWorkspacesLazyQuery>;
-export type GetAllWorkspacesQueryResult = Apollo.QueryResult<GetAllWorkspacesQuery, GetAllWorkspacesQueryVariables>;
+export type GetWorkspaceQueryHookResult = ReturnType<typeof useGetWorkspaceQuery>;
+export type GetWorkspaceLazyQueryHookResult = ReturnType<typeof useGetWorkspaceLazyQuery>;
+export type GetWorkspaceQueryResult = Apollo.QueryResult<GetWorkspaceQuery, GetWorkspaceQueryVariables>;

@@ -8,14 +8,13 @@ import { useGetAllWorkspacesQuery } from "~/graphql/generated";
 
 const Workspaces: NextPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { data, loading, refetch } = useGetAllWorkspacesQuery({});
+  const { data, loading } = useGetAllWorkspacesQuery({});
 
   const workspaceTiles = useMemo(() => {
     if (loading || !data) {
       return null;
     }
 
-    // TODO: Add a WorkspaceContext for each context. It should include the workspace, as well as the refetch function
     return data?.getAllWorkspaces.map((workspace) => (
       <WorkspaceTile
         key={workspace.uuid}
@@ -27,11 +26,6 @@ const Workspaces: NextPage = () => {
     ));
   }, [loading, data]);
 
-  const closeModal = () => {
-    onClose();
-    refetch();
-  };
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -42,7 +36,7 @@ const Workspaces: NextPage = () => {
         {workspaceTiles}
         <AddWorkspace onClick={onOpen} />
       </Flex>
-      <AddWorkspaceModal isOpen={isOpen} onClose={closeModal} />
+      <AddWorkspaceModal isOpen={isOpen} onClose={onClose} />
     </>
   );
 };

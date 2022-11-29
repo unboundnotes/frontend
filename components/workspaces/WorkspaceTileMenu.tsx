@@ -7,11 +7,11 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { BiDotsVerticalRounded } from "react-icons/bi";
-import { Workspace } from "~/graphql/generated";
+import { BaseWorkspace } from "~/types";
 import DeleteWorkspaceModal from "./DeleteWorkspaceModal";
 
 interface Props {
-  workspace: Workspace;
+  workspace: BaseWorkspace;
 }
 
 const WorkspaceTileMenu: React.FC<Props> = ({ workspace }) => {

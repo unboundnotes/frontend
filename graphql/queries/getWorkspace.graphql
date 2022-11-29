@@ -1,0 +1,12 @@
+query getWorkspace($uuid: UUID!) {
+  getWorkspace(uuid: $uuid) {
+    uuid
+    name
+    image
+    pages {
+      uuid
+      title
+      image
+    }
+  }
+}

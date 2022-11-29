@@ -22,7 +22,9 @@ interface Props {
 
 const AddWorkspaceModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [createWorkspace, { called, loading, reset, data, error }] =
-    useCreateWorkspaceMutation();
+    useCreateWorkspaceMutation({
+      refetchQueries: ["getAllWorkspaces"],
+    });
   const nameRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
   const [nameErr, setNameErr] = useState("");
@@ -44,6 +46,7 @@ const AddWorkspaceModal: React.FC<Props> = ({ isOpen, onClose }) => {
     if (!called || loading) {
       return;
     }
+
     if (error) {
       console.error(error);
       reset();

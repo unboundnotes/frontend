@@ -18,9 +18,10 @@ import {
   useDeleteWorkspaceMutation,
   Workspace,
 } from "~/graphql/generated";
+import { BaseWorkspace } from "~/types";
 
 interface Props {
-  workspace: Workspace;
+  workspace: BaseWorkspace;
   isOpen: boolean;
   onClose: () => void;
 }
